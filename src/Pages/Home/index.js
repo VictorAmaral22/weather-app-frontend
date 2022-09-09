@@ -1,9 +1,10 @@
 import './styles.css';
 import { useEffect, useState } from 'react'
-import { getCoordsByCity, getForecastByCoords } from '../../api';
+import { getCoordsByCity, getForecastByCoords, getWeekForecastByCoords } from '../../api';
 import Logo from '../../assets/icons/weather.png';
 import Thermometer from '../../assets/icons/thermometer.png';
 import Calendar from '../../assets/icons/calendar.png';
+import Details from '../../assets/icons/info.png';
 import SunnyBackground from '../../assets/images/clear_sky.jpg';
 import WeatherSun from '../../assets/icons/01d.png';
 import WeatherFewClouds from '../../assets/icons/02d.png';
@@ -20,11 +21,12 @@ export default function Home() {
 	const [selectedCity, setSelectedCity] = useState(null)
 	const [cityOptions, setCityOptions] = useState([])
 	const [weatherData, setWeatherData] = useState(null)
+	const [forecastData, setForecastData] = useState([])
 	
 	const FindCity = async (e) => {
 		e.preventDefault();
 
-		console.log('cityName ',cityName)
+		// console.log('cityName ',cityName)
 		if(cityName != ""){
 			const cities = await getCoordsByCity(cityName);
 			setCityOptions(cities);
@@ -33,36 +35,60 @@ export default function Home() {
 		}
 	}
 
-	console.log('selectedCity ',selectedCity)
+	// console.log('selectedCity ',selectedCity)
 
 	const getForecast = async () => {
 		const response = await getForecastByCoords(selectedCity.lat, selectedCity.lon);
 		setWeatherData(response);
 	}
+	
+	const getWeekForecast = async () => {
+		const response = await getWeekForecastByCoords(selectedCity.lat, selectedCity.lon);
+		let tmpForecast = [], days = [];
+
+		response.list.map(item => {
+			let day = item.dt_txt.split(' ')[0]
+			if(!days.find(item2 => item2 == day)){
+				days.push(day);
+			}
+		})
+		days = days.slice(1, 4)
+		// console.log('days ',days);
+
+		days.map(item => {
+			let forecast = response.list.find(item2 => item2.dt_txt.split(' ')[0] == item)
+			tmpForecast.push(forecast);
+			// console.log('forecast ',forecast)
+		})
+
+		setForecastData(tmpForecast);
+	}
 
 	useEffect(() => {
 		if(selectedCity){
 			getForecast();
+			getWeekForecast();
 		}
 	}, [selectedCity]);
 
 	console.log('weatherData ',weatherData)
+	console.log('forecastData ',forecastData)
 
 	const weatherIcon = (icon) => {
 		const icons = [
-			{id: "01d", image: WeatherSun},
-			{id: "02d", image: WeatherFewClouds},
-			{id: "03d", image: WeatherScatteredClouds},
-			{id: "04d", image: WeatherBrokenClouds},
-			{id: "09d", image: WeatherShowerRain},
-			{id: "10d", image: WeatherRain},
-			{id: "11d", image: WeatherStorm},
-			{id: "13d", image: WeatherSnow},
-			{id: "50d", image: WeatherMist},
+			{id: "01d", id2: "01n", image: WeatherSun},
+			{id: "02d", id2: "02n", image: WeatherFewClouds},
+			{id: "03d", id2: "03n", image: WeatherScatteredClouds},
+			{id: "04d", id2: "04n", image: WeatherBrokenClouds},
+			{id: "09d", id2: "09n", image: WeatherShowerRain},
+			{id: "10d", id2: "10n", image: WeatherRain},
+			{id: "11d", id2: "11n", image: WeatherStorm},
+			{id: "13d", id2: "13n", image: WeatherSnow},
+			{id: "50d", id2: "50n", image: WeatherMist},
 		];
-		console.log('icon ',icon)
+		// console.log('icon ',icon)
 
-		return icons.find(item => item.id == icon).image;
+		return icons.find(item => item.id == icon || item.id2 == icon).image;
 	}
 
     return (
@@ -100,12 +126,12 @@ export default function Home() {
 			</form>
 
 			<div className='forecast'>
-				<div className='backgroundImg' style={{backgroundImage: `url(${SunnyBackground})`}}></div>
+				{/* <div className='backgroundImg' style={{backgroundImage: `url(${SunnyBackground})`}}></div> */}
 				{/* Temperatura atual */}
 				<div className='currentTemp'>
-					<div class="currentTempHeader">
+					<div className="currentTempHeader">
 						<img src={Thermometer} className='tempt-icon' />
-						<p class='tempt-title'>Temperatura Atual</p>
+						<p className='tempt-title'>Temperatura Atual</p>
 					</div>
 
 					<div className='currentTemperature'>
@@ -133,23 +159,43 @@ export default function Home() {
 
 				{/* Próximos dias */}
 				<div className='nextTemp'>
-					<div class="currentTempHeader">
+					<div className="currentTempHeader">
 						<img src={Calendar} className='tempt-icon' />
-						<p class='tempt-title' style={{marginLeft: '4%'}}>Previsão nos Próximos Dias</p>
+						<p className='tempt-title' style={{marginLeft: '4%'}}>Previsão nos Próximos Dias</p>
 					</div>
 
-					<div className='currentTemperature'>
-						<div className='temperDiv'>
-							<p className='temperature'>18°</p>
-							<div className='temperMinMax'>
-								<p className='temperature'>22°</p>
-								<p className='temperature'>16°</p>
-							</div>
+					<div className='nextTemperature'>
+						<div className='daysDiv'>
+							{forecastData && forecastData.length > 0 && forecastData.map(item => {
+								let date = item.dt_txt.split(" ")[0].split("-");
+								return <div className='dayCard'>
+									<p className='dayCardDate'>{`${date[2]}/${date[1]}`}</p>
+									<img className='dayCardIcon' src={item.weather ? weatherIcon(item.weather[0].icon) : WeatherSun} />
+									<p className='dayCardTemp'>{item.main.temp}°</p>
+									<p className='dayCardDescrpt'>{item.weather[0].description}</p>
+								</div>
+							})}
+							{forecastData && forecastData.length === 0 && [1,2,3].map(item => {
+								return <div className='dayCard'>
+									<p className='dayCardDate'>10/09</p>
+									<img className='dayCardIcon' src={WeatherSun} />
+									<p className='dayCardTemp'>0°</p>
+									<p className='dayCardDescrpt'>Tempe Ensolarado</p>
+								</div>
+							})}
 						</div>
 
-						<div className='currentWeather'>
-							<img src={WeatherSun} className="wheatherIcon" />
-							<p className='wheatherTxt'>Ensolarado</p>
+						<div className="currentTempHeader">
+							<img src={Details} className='details-icon' />
+							<p className='tempt-title' style={{marginLeft: '4%'}}>Outras informações</p>
+						</div>
+
+						<div className='currentWeatherDetails'>
+							<ul>
+								<li>Sensação Térmica: {weatherData ? weatherData.main.feels_like+"°" : "0°"}</li>
+								<li>Pressão Atmosférica: {weatherData ? weatherData.main.pressure+" atm" : "0 atm"}</li>
+								<li>Humidade: {weatherData ? weatherData.main.humidity+"%" : "0%"}</li>
+							</ul>
 						</div>
 					</div>					
 				</div>				
