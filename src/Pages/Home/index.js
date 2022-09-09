@@ -5,7 +5,6 @@ import Logo from '../../assets/icons/weather.png';
 import Thermometer from '../../assets/icons/thermometer.png';
 import Calendar from '../../assets/icons/calendar.png';
 import Details from '../../assets/icons/info.png';
-import SunnyBackground from '../../assets/images/clear_sky.jpg';
 import WeatherSun from '../../assets/icons/01d.png';
 import WeatherFewClouds from '../../assets/icons/02d.png';
 import WeatherScatteredClouds from '../../assets/icons/03d.png';
