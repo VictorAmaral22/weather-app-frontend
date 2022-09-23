@@ -1,6 +1,6 @@
 import './styles.css';
 import { useEffect, useState } from 'react'
-import { getCoordsByCity, getForecastByCoords, getWeekForecastByCoords, saveCityHistory } from '../../api';
+import { getCoordsByCity, getForecastByCoords, getWeekForecastByCoords, saveCityHistory, getCityHistory } from '../../api';
 import Logo from '../../assets/icons/weather.png';
 import Thermometer from '../../assets/icons/thermometer.png';
 import Calendar from '../../assets/icons/calendar.png';
@@ -21,6 +21,7 @@ export default function Home() {
 	const [cityOptions, setCityOptions] = useState([])
 	const [weatherData, setWeatherData] = useState(null)
 	const [forecastData, setForecastData] = useState([])
+	const [cityHistory, setCityHistory] = useState([])
 	
 	const FindCity = async (e) => {
 		e.preventDefault();
@@ -39,6 +40,7 @@ export default function Home() {
 	const getForecast = async () => {
 		const response = await getForecastByCoords(selectedCity.lat, selectedCity.lon);
 		setWeatherData(response);
+		return response
 	}
 	
 	const getWeekForecast = async () => {
@@ -63,10 +65,19 @@ export default function Home() {
 		setForecastData(tmpForecast);
 	}
 
+	const getHistory = async (forecast) => {
+		const city_id = await forecast;
+		console.log("city_id ",city_id)
+		let res = await getCityHistory(forecast.id)
+		console.log("getHistory ",res)
+		setCityHistory(res.history)
+	}
+
 	useEffect(() => {
 		if(selectedCity){
-			getForecast();
+			let forecast = getForecast();
 			getWeekForecast();
+			getHistory(forecast)
 		}
 	}, [selectedCity]);
 
@@ -126,7 +137,7 @@ export default function Home() {
 							<h1 className='cityName'>{selectedCity.name}</h1>
 							<h4 className='cityDetails'>{selectedCity.state} - {selectedCity.country}</h4>
 						</div>
-						<div className="change-button" type="submit" onClick={() => setSelectedCity(null)}><p>Trocar Cidade</p></div>
+						<div className="change-button" type="submit" onClick={() => {setSelectedCity(null); setCityHistory([])}}><p>Trocar Cidade</p></div>
 						<h4 className='cityCoords'>{selectedCity.lat}, {selectedCity.lon}</h4>
 					</div>
 				)}
