@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_KEY = process.env.REACT_APP_WHEATER_API_KEY;
+const base_url = "http://localhost:3001";
 
 export async function getCoordsByCity(cityname, statecode=undefined, countrycode=undefined, limit=5) {
     try {
@@ -26,5 +27,34 @@ export async function getForecastByCoords(lat, lon) {
         return response.data;
     } catch (error) {
         return null;
+    }
+}
+
+export async function saveCityHistory (data){
+    try {
+        const response = await axios.post(`${base_url}/cityHistory`, {
+            ...data
+        });
+        return response.data;
+    } catch (error) {
+        return null
+    }
+}
+
+export async function getAllHistory (){
+    try {
+        const response = await axios.get(`${base_url}/cityHistory`);
+        return response.data;
+    } catch (error) {
+        return null
+    }
+}
+
+export async function getCityHistory (id){
+    try {
+        const response = await axios.get(`${base_url}/cityHistory/${id}`);
+        return response.data;
+    } catch (error) {
+        return null
     }
 }

@@ -1,6 +1,6 @@
 import './styles.css';
 import { useEffect, useState } from 'react'
-import { getCoordsByCity, getForecastByCoords, getWeekForecastByCoords } from '../../api';
+import { getCoordsByCity, getForecastByCoords, getWeekForecastByCoords, saveCityHistory } from '../../api';
 import Logo from '../../assets/icons/weather.png';
 import Thermometer from '../../assets/icons/thermometer.png';
 import Calendar from '../../assets/icons/calendar.png';
@@ -72,6 +72,7 @@ export default function Home() {
 
 	console.log('weatherData ',weatherData)
 	console.log('forecastData ',forecastData)
+	console.log("selectedCity ",selectedCity)
 
 	const weatherIcon = (icon) => {
 		const icons = [
@@ -85,10 +86,34 @@ export default function Home() {
 			{id: "13d", id2: "13n", image: WeatherSnow},
 			{id: "50d", id2: "50n", image: WeatherMist},
 		];
-		// console.log('icon ',icon)
-
 		return icons.find(item => item.id == icon || item.id2 == icon).image;
 	}
+
+	const saveData = async () => {
+		let datetime = new Date()
+		datetime = datetime.toISOString().split("T")
+		const data = {
+			"city_id": weatherData.id,
+			"city_name": cityName, 
+			"date": datetime[0], 
+			"time": datetime[1], 
+			"temperature": weatherData.main.temp, 
+			"sensation": weatherData.main.feels_like, 
+			"humidity": weatherData.main.humidity,
+			"weather": weatherData.weather[0].description
+		}
+
+		console.log("data ",data)
+		let res = await saveCityHistory(data)
+		console.log("res ",res)
+		return res;
+	}
+
+	useEffect(() => {
+		if(weatherData && selectedCity){
+			saveData()
+		}
+	}, [weatherData])
 
     return (
         <div className="App">
