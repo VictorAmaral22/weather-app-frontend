@@ -11,127 +11,11 @@
 	background-color: #3E6680;
 }
 
-.icon {
-	width: 50%;
-	margin-bottom: 10%;
-}
-
-.searchForm {
-	background-color: #00487C;
-	color: #fff;
-	width: 25vh;
-	height: 97vh;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	align-self: center;
-	padding: 2%;
-	padding-top: 10%;
-	padding-left: 10%;
-	padding-right: 10%;
-	transition: all ease 0.3s;
-	
-}
-
-.cityInfo {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-}
-
-.cityName {
-	font-size: 1.6em;
-	margin-bottom: -4%;
-}
-
-.cityDetails {
-	font-weight: lighter;
-	margin-bottom: 30%;
-}
-
-.cityCoords {
-	font-weight: lighter;
-	margin-top: 50vh;
-}
-
-.change-button {
-	width: 100%;
-	height: 4vh;
-	border: 1px solid transparent;
-	border-radius: 5px;
-	background-color: #00345A;
-	color: #fff;
-	font-weight: bold;
-	transition: all ease 0.3s;
-	cursor: pointer;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-.change-button:hover {
-	background-color: #0496FF;
-}
-
-.placesDiv, .searchDiv {
-	display: flex;
-	width: 100%;
-	flex-direction: column;
-	justify-content: center;
-}
-
-.searchDiv {
-	margin-bottom: 7%;
-}
-
-.input-text {
-	height: 4vh;
-	background-color: #fff;
-	border: 1px solid transparent;
-	border-radius: 5px;
-	margin-bottom: 4%;
-}
-
-.input-button {
-	height: 4vh;
-	border: 1px solid transparent;
-	border-radius: 5px;
-	background-color: #0496FF;
-	color: #fff;
-	font-weight: bold;
-	transition: all ease 0.3s;
-	cursor: pointer;
-}
-
-.input-button:hover {
-	background-color: #fff;
-	color: #000;
-}
-
-.placesDiv {
-	display: flex;
-	flex-direction: column;
-	overflow-y: scroll;
-}
-
-.placeRow {
-	text-align: center;
-	background-color: #1e323f;
-	margin-bottom: 3%;
-	border-radius: 5px;
-	cursor: pointer;
-	transition: all ease 0.3s;
-}
-
-.placeRow:hover {
-	background-color: #2f4d61;
-}
-
 .forecast {
 	grid-area: places;	
 	display: grid;
 	grid-template-areas: "clima dias"
-						 "clima dias";
+						 "info  history";
 	width: 70vw;
 	height: 70vh;
 	/* background-position: center; */
@@ -215,11 +99,11 @@
 }
 
 .temperatureMain {
-	font-size: 6em;
+	font-size: 5em;
 }
 
 .temperMinMax {
-	margin-left: 10%;
+	margin-left: 5%;
 }
 
 .currentWeather {
@@ -312,4 +196,13 @@
 
 .currentWeatherDetails ul {
 	justify-self: flex-start;
+}
+
+.history {
+	grid-area: history;
+	display: flex;
+	flex-direction: column;
+	padding-left: 5%;
+	padding-top: 2%;
+	background-color: #01416e;
 }

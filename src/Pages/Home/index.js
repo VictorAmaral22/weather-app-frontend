@@ -1,7 +1,6 @@
 import './styles.css';
 import { useEffect, useState } from 'react'
 import { getCoordsByCity, getForecastByCoords, getWeekForecastByCoords, saveCityHistory, getCityHistory } from '../../api';
-import Logo from '../../assets/icons/weather.png';
 import Thermometer from '../../assets/icons/thermometer.png';
 import Calendar from '../../assets/icons/calendar.png';
 import Details from '../../assets/icons/info.png';
@@ -14,32 +13,25 @@ import WeatherRain from '../../assets/icons/10d.png';
 import WeatherStorm from '../../assets/icons/11d.png';
 import WeatherSnow from '../../assets/icons/13d.png';
 import WeatherMist from '../../assets/icons/50d.png';
+import Sidebar from '../../components/Sidebar';
+import Logo from '../../assets/icons/weather.png';
+import DoughnutChart from "../../components/Charts/DoughnutChart"
+import * as C from './styles'
 
 export default function Home() {
 	const [cityName, setCityName] = useState("")
 	const [selectedCity, setSelectedCity] = useState(null)
-	const [cityOptions, setCityOptions] = useState([])
 	const [weatherData, setWeatherData] = useState(null)
 	const [forecastData, setForecastData] = useState([])
 	const [cityHistory, setCityHistory] = useState([])
-	
-	const FindCity = async (e) => {
-		e.preventDefault();
-
-		// console.log('cityName ',cityName)
-		if(cityName != ""){
-			const cities = await getCoordsByCity(cityName);
-			setCityOptions(cities);
-		} else {
-			alert('Escreva o nome da cidade!');
-		}
-	}
 
 	// console.log('selectedCity ',selectedCity)
 
 	const getForecast = async () => {
 		const response = await getForecastByCoords(selectedCity.lat, selectedCity.lon);
 		setWeatherData(response);
+		// console.log("response ",response)
+		getHistory(response)
 		return response
 	}
 	
@@ -66,24 +58,22 @@ export default function Home() {
 	}
 
 	const getHistory = async (forecast) => {
-		const city_id = await forecast;
-		console.log("city_id ",city_id)
 		let res = await getCityHistory(forecast.id)
-		console.log("getHistory ",res)
+		// console.log("getHistory ",res)
 		setCityHistory(res.history)
 	}
 
 	useEffect(() => {
 		if(selectedCity){
-			let forecast = getForecast();
+			getForecast();
 			getWeekForecast();
-			getHistory(forecast)
 		}
 	}, [selectedCity]);
 
-	console.log('weatherData ',weatherData)
-	console.log('forecastData ',forecastData)
-	console.log("selectedCity ",selectedCity)
+	// console.log('weatherData ',weatherData)
+	// console.log('forecastData ',forecastData)
+	// console.log("selectedCity ",selectedCity)
+	console.log("cityHistory ",cityHistory)
 
 	const weatherIcon = (icon) => {
 		const icons = [
@@ -114,9 +104,9 @@ export default function Home() {
 			"weather": weatherData.weather[0].description
 		}
 
-		console.log("data ",data)
+		// console.log("data ",data)
 		let res = await saveCityHistory(data)
-		console.log("res ",res)
+		// console.log("res ",res)
 		return res;
 	}
 
@@ -128,113 +118,95 @@ export default function Home() {
 
     return (
         <div className="App">
-			<form onSubmit={(e) => FindCity(e)} className="searchForm">
-				<img src={Logo} className='icon' />
+			<Sidebar 
+				selectedCity={selectedCity}
+				setSelectedCity={(value) => setSelectedCity(value)}
+				cityName={cityName}
+				setCityName={(value) => setCityName(value)}
+				setCityHistory={(value) => setCityHistory(value)}
+			/>
 
-				{selectedCity && (
-					<div className='cityInfo'>
-						<div>
-							<h1 className='cityName'>{selectedCity.name}</h1>
-							<h4 className='cityDetails'>{selectedCity.state} - {selectedCity.country}</h4>
-						</div>
-						<div className="change-button" type="submit" onClick={() => {setSelectedCity(null); setCityHistory([])}}><p>Trocar Cidade</p></div>
-						<h4 className='cityCoords'>{selectedCity.lat}, {selectedCity.lon}</h4>
-					</div>
-				)}
-				{!selectedCity && (
-					<div>
-						<h2>Qual cidade desejas ver?</h2>
-						<div className='searchDiv'>
-							<input className="input-text" type="text" name="city" placeholder='Escreva o nome da Cidade...' defaultValue={cityName} onChange={(e) => setCityName(e.target.value)} required />
-							<button className="input-button" type="submit">Pesquisar</button>
-						</div>
-
-						<div className='placesDiv'>
-							{cityOptions.length > 0 && cityOptions.map(item => { return (
-								<div className='placeRow' onClick={() => setSelectedCity(item)}>
-									<p>{item.name}, {item.state} - {item.country}</p>
-								</div>)
-							})}
-						</div>
-					</div>
-				)}
-			</form>
-
-			<div className='forecast'>
-				{/* <div className='backgroundImg' style={{backgroundImage: `url(${SunnyBackground})`}}></div> */}
-				{/* Temperatura atual */}
-				<div className='currentTemp'>
-					<div className="currentTempHeader">
+			<C.Container>
+				<C.Weather>
+					<C.Heading>
 						<img src={Thermometer} className='tempt-icon' />
-						<p className='tempt-title'>Temperatura Atual</p>
-					</div>
-
-					<div className='currentTemperature'>
-						<div className='temperDiv'>
-							<p className='temperature temperatureMain' style={{color: "#4BB3FD"}}>
-								{weatherData ? weatherData.main.temp.toFixed(1)+"°" : "0°"}
+						<p className='tempt-title'>Temperatura Atual</p>	
+					</C.Heading>
+					
+					<C.Content>
+						<p className='temperature temperatureMain' style={{color: "#4BB3FD"}}>
+							{weatherData ? weatherData.main.temp.toFixed(1)+"°" : "0°"}
+						</p>
+						<div className='temperMinMax'>
+							<p className='temperature' style={{color: "#FDEB4B"}}>
+								{weatherData ? weatherData.main.temp_max.toFixed(1)+"°" : "0°"}
 							</p>
-							<div className='temperMinMax'>
-								<p className='temperature' style={{color: "#FDEB4B"}}>
-									{weatherData ? weatherData.main.temp_max.toFixed(1)+"°" : "0°"}
-								</p>
-								<p className='temperature' style={{color: "#D8EFFF"}}>
-									{weatherData ? weatherData.main.temp_min.toFixed(1)+"°" : "0°"}
-								</p>
-							</div>
+							<p className='temperature' style={{color: "#D8EFFF"}}>
+								{weatherData ? weatherData.main.temp_min.toFixed(1)+"°" : "0°"}
+							</p>
 						</div>
-
+					
 						<div className='currentWeather'>
 							<img src={weatherData ? weatherIcon(weatherData.weather[0].icon) : WeatherSun} className="wheatherIcon" />
 							<p className='wheatherTxt'>{weatherData ? weatherData.weather[0].description : "------"}</p>
 						</div>
+					</C.Content>
+
+				</C.Weather>
+				{/* <div className='currentTemp'>
+
+					<div className="currentTempHeader">
+						<img src={Details} className='details-icon' />
+						<p className='tempt-title' style={{marginLeft: '4%'}}>Outras informações</p>
+					</div>
+
+					<div className='currentWeatherDetails'>
+						<ul>
+							<li>Sensação Térmica: {weatherData ? weatherData.main.feels_like+"°" : "0°"}</li>
+							<li>Pressão Atmosférica: {weatherData ? weatherData.main.pressure+" atm" : "0 atm"}</li>
+							<li>Humidade: {weatherData ? weatherData.main.humidity+"%" : "0%"}</li>
+						</ul>
 					</div>
 					
-				</div>
-
-				{/* Próximos dias */}
-				<div className='nextTemp'>
-					<div className="currentTempHeader">
-						<img src={Calendar} className='tempt-icon' />
-						<p className='tempt-title' style={{marginLeft: '4%'}}>Previsão nos Próximos Dias</p>
-					</div>
-
-					<div className='nextTemperature'>
-						<div className='daysDiv'>
-							{forecastData && forecastData.length > 0 && forecastData.map(item => {
-								let date = item.dt_txt.split(" ")[0].split("-");
-								return <div className='dayCard'>
-									<p className='dayCardDate'>{`${date[2]}/${date[1]}`}</p>
-									<img className='dayCardIcon' src={item.weather ? weatherIcon(item.weather[0].icon) : WeatherSun} />
-									<p className='dayCardTemp'>{item.main.temp}°</p>
-									<p className='dayCardDescrpt'>{item.weather[0].description}</p>
-								</div>
-							})}
-							{forecastData && forecastData.length === 0 && [1,2,3].map(item => {
-								return <div className='dayCard'>
-									<p className='dayCardDate'>10/09</p>
-									<img className='dayCardIcon' src={WeatherSun} />
-									<p className='dayCardTemp'>0°</p>
-									<p className='dayCardDescrpt'>Tempe Ensolarado</p>
-								</div>
-							})}
-						</div>
-
+					<div className='nextTemp'>
 						<div className="currentTempHeader">
-							<img src={Details} className='details-icon' />
-							<p className='tempt-title' style={{marginLeft: '4%'}}>Outras informações</p>
+							<img src={Calendar} className='tempt-icon' />
+							<p className='tempt-title' style={{marginLeft: '4%'}}>Previsão nos Próximos Dias</p>
 						</div>
 
-						<div className='currentWeatherDetails'>
-							<ul>
-								<li>Sensação Térmica: {weatherData ? weatherData.main.feels_like+"°" : "0°"}</li>
-								<li>Pressão Atmosférica: {weatherData ? weatherData.main.pressure+" atm" : "0 atm"}</li>
-								<li>Humidade: {weatherData ? weatherData.main.humidity+"%" : "0%"}</li>
-							</ul>
+						<div className='nextTemperature'>
+							<div className='daysDiv'>
+								{forecastData && forecastData.length > 0 && forecastData.map(item => {
+									let date = item.dt_txt.split(" ")[0].split("-");
+									return <div className='dayCard'>
+										<p className='dayCardDate'>{`${date[2]}/${date[1]}`}</p>
+										<img className='dayCardIcon' src={item.weather ? weatherIcon(item.weather[0].icon) : WeatherSun} />
+										<p className='dayCardTemp'>{item.main.temp}°</p>
+										<p className='dayCardDescrpt'>{item.weather[0].description}</p>
+									</div>
+								})}
+								{forecastData && forecastData.length === 0 && [1,2,3].map(item => {
+									return <div className='dayCard'>
+										<p className='dayCardDate'>10/09</p>
+										<img className='dayCardIcon' src={WeatherSun} />
+										<p className='dayCardTemp'>0°</p>
+										<p className='dayCardDescrpt'>Tempe Ensolarado</p>
+									</div>
+								})}
+							</div>
+
+						</div>					
+						
+						<div className="currentTempHeader">
+							<img src={Calendar} className='tempt-icon' />
+							<p className='tempt-title' style={{marginLeft: '4%'}}>Histórico da cidade</p>
 						</div>
-					</div>					
-				</div>				
-			</div>
+						<div className='history'>
+							<DoughnutChart history={cityHistory}/>
+						</div>
+					</div>	
+				</div> */}
+			</C.Container>
         </div>
     );
 }
