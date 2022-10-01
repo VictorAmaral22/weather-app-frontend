@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const API_KEY = process.env.REACT_APP_WHEATER_API_KEY;
-const base_url = "http://localhost:3001";
+
+// const BASE_URL = "http://localhost:3001";
+const BASE_URL = "https://weather-app-backend-production.up.railway.app";
 
 export async function getCoordsByCity(cityname, statecode=undefined, countrycode=undefined, limit=5) {
     try {
@@ -32,7 +34,7 @@ export async function getForecastByCoords(lat, lon) {
 
 export async function saveCityHistory (data){
     try {
-        const response = await axios.post(`${base_url}/cityHistory`, {
+        const response = await axios.post(`${BASE_URL}/cityHistory`, {
             ...data
         });
         return response.data;
@@ -43,7 +45,7 @@ export async function saveCityHistory (data){
 
 export async function getAllHistory (){
     try {
-        const response = await axios.get(`${base_url}/cityHistory`);
+        const response = await axios.get(`${BASE_URL}/cityHistory`);
         return response.data;
     } catch (error) {
         return null
@@ -52,7 +54,7 @@ export async function getAllHistory (){
 
 export async function getCityHistory (id){
     try {
-        const response = await axios.get(`${base_url}/cityHistory/${id}`);
+        const response = await axios.get(`${BASE_URL}/cityHistory/${id}`);
         return response.data;
     } catch (error) {
         return null

@@ -2,8 +2,9 @@ import './styles.css';
 import { useEffect, useState } from 'react'
 import { getCoordsByCity, getForecastByCoords, getWeekForecastByCoords, saveCityHistory, getCityHistory } from '../../api';
 import Thermometer from '../../assets/icons/thermometer.png';
-import Calendar from '../../assets/icons/calendar.png';
-import Details from '../../assets/icons/info.png';
+import Forecast from '../../assets/icons/bi_calendar-week.png'
+import Details from '../../assets/icons/bi_info-circle.png';
+import History from '../../assets/icons/bi_clock-history.png';
 import WeatherSun from '../../assets/icons/01d.png';
 import WeatherFewClouds from '../../assets/icons/02d.png';
 import WeatherScatteredClouds from '../../assets/icons/03d.png';
@@ -16,6 +17,9 @@ import WeatherMist from '../../assets/icons/50d.png';
 import Sidebar from '../../components/Sidebar';
 import Logo from '../../assets/icons/weather.png';
 import DoughnutChart from "../../components/Charts/DoughnutChart"
+import BarChart from "../../components/Charts/BarChart"
+import PolarChart from "../../components/Charts/PolarChart"
+import AreaChart from "../../components/Charts/AreaChart"
 import * as C from './styles'
 
 export default function Home() {
@@ -116,8 +120,10 @@ export default function Home() {
 		}
 	}, [weatherData])
 
+	const [selectedChart, setSelectedChart] = useState("temperatura")
+
     return (
-        <div className="App">
+        <C.Container>
 			<Sidebar 
 				selectedCity={selectedCity}
 				setSelectedCity={(value) => setSelectedCity(value)}
@@ -126,33 +132,116 @@ export default function Home() {
 				setCityHistory={(value) => setCityHistory(value)}
 			/>
 
-			<C.Container>
+			<C.Dashboard>
 				<C.Weather>
 					<C.Heading>
-						<img src={Thermometer} className='tempt-icon' />
-						<p className='tempt-title'>Temperatura Atual</p>	
+						<C.Icon src={Thermometer} />
+						<C.HeadingTitle style={{ marginLeft: '-2%'}}>Temperatura Atual</C.HeadingTitle>	
 					</C.Heading>
 					
 					<C.Content>
-						<p className='temperature temperatureMain' style={{color: "#4BB3FD"}}>
-							{weatherData ? weatherData.main.temp.toFixed(1)+"°" : "0°"}
-						</p>
-						<div className='temperMinMax'>
-							<p className='temperature' style={{color: "#FDEB4B"}}>
-								{weatherData ? weatherData.main.temp_max.toFixed(1)+"°" : "0°"}
-							</p>
-							<p className='temperature' style={{color: "#D8EFFF"}}>
-								{weatherData ? weatherData.main.temp_min.toFixed(1)+"°" : "0°"}
-							</p>
+						<div style={{ display: 'flex', flexDirection: 'column', paddingLeft: "6%" }}>
+							<div style={{ display: 'flex', alignItems: 'center', height: '20vh'}}>
+								<p className='temperature temperatureMain' style={{color: "#4BB3FD"}}>
+									{weatherData ? weatherData.main.temp.toFixed(1)+"°" : "0°"}
+								</p>
+								<div className='temperMinMax'>
+									<p className='temperature' style={{color: "#FDEB4B"}}>
+										{weatherData ? weatherData.main.temp_max.toFixed(1)+"°" : "0°"}
+									</p>
+									<p className='temperature' style={{color: "#D8EFFF"}}>
+										{weatherData ? weatherData.main.temp_min.toFixed(1)+"°" : "0°"}
+									</p>
+								</div>
+							</div>
+							<div>
+								<p className='temperature' style={{color: "#fff"}}>
+									Sensação térmica {weatherData ? weatherData.main.feels_like.toFixed(1)+"°" : "0°"}
+								</p>
+							</div>
 						</div>
+						
 					
 						<div className='currentWeather'>
 							<img src={weatherData ? weatherIcon(weatherData.weather[0].icon) : WeatherSun} className="wheatherIcon" />
 							<p className='wheatherTxt'>{weatherData ? weatherData.weather[0].description : "------"}</p>
 						</div>
 					</C.Content>
-
 				</C.Weather>
+
+				<C.Info>
+					<C.Heading>
+						<C.Icon src={Details} />
+						<C.HeadingTitle>Outras informações</C.HeadingTitle>	
+					</C.Heading>
+					<C.Content>
+						<div className='currentWeatherDetails'>
+							<ul>
+								<li>Sensação Térmica: {weatherData ? weatherData.main.feels_like+"°" : "0°"}</li>
+								<li>Pressão Atmosférica: {weatherData ? weatherData.main.pressure+" atm" : "0 atm"}</li>
+								<li>Humidade: {weatherData ? weatherData.main.humidity+"%" : "0%"}</li>
+							</ul>
+						</div>
+					</C.Content>
+				</C.Info>
+
+				<C.Forecast>
+					<C.Heading>
+						<C.Icon src={Forecast} />
+						<C.HeadingTitle>Previsão para os próximos dias</C.HeadingTitle>	
+					</C.Heading>
+					<C.Content style={{ justifyContent: 'space-evenly', paddingRight: "10%", paddingTop: "3%" }}>
+						{forecastData && forecastData.length > 0 && forecastData.map(item => {
+							let date = item.dt_txt.split(" ")[0].split("-");
+							return (
+								<C.DayCard>
+									<p className='dayCardDate'>{`${date[2]}/${date[1]}`}</p>
+									<img className='dayCardIcon' src={item.weather ? weatherIcon(item.weather[0].icon) : WeatherSun} />
+									<p className='dayCardTemp'>{item.main.temp}°</p>
+									<p className='dayCardDescrpt'>{item.weather[0].description}</p>
+								</C.DayCard>
+							)
+						})}
+						{forecastData && forecastData.length === 0 && [1,2,3].map(item => {
+							return (
+								<C.DayCard>
+									<p className='dayCardDate'>10/09</p>
+									<img className='dayCardIcon' src={WeatherSun} />
+									<p className='dayCardTemp'>0°</p>
+									<p className='dayCardDescrpt'>Tempo Ensolarado</p>
+								</C.DayCard>
+							)
+						})}
+					</C.Content>
+				</C.Forecast>
+
+				<C.History>
+					<C.Heading>
+						<C.Icon src={History} />
+						<C.HeadingTitle>Histórico da cidade</C.HeadingTitle>	
+					</C.Heading>
+
+					<C.Content>
+						<C.ChartWrapper>
+							{cityHistory.length === 0 && (
+								<p>Sem dados para essa cidade ainda...</p>
+							)}
+							
+							{selectedChart == "temperatura" && cityHistory.length > 0 && <BarChart history={cityHistory}/>}
+							<div>
+								{selectedChart == "climas" && cityHistory.length > 0 && <PolarChart history={cityHistory}/>}
+							</div>
+							{selectedChart == "umidade" && cityHistory.length > 0 && <AreaChart history={cityHistory}/>}
+
+							<C.ChartOptions>
+								<div onClick={() => setSelectedChart("temperatura")} className={selectedChart == "temperatura" ? "option-selected" : "option"}>Temperatura</div>
+								<div onClick={() => setSelectedChart("climas")} className={selectedChart == "climas" ? "option-selected" : "option"}>Climas</div>
+								<div onClick={() => setSelectedChart("umidade")} className={selectedChart == "umidade" ? "option-selected" : "option"}>Umidade</div>
+							</C.ChartOptions>
+						</C.ChartWrapper>
+					</C.Content>
+				</C.History>
+
 				{/* <div className='currentTemp'>
 
 					<div className="currentTempHeader">
@@ -206,7 +295,7 @@ export default function Home() {
 						</div>
 					</div>	
 				</div> */}
-			</C.Container>
-        </div>
+			</C.Dashboard>
+        </C.Container>
     );
 }

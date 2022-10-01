@@ -1,26 +1,10 @@
-.App {
-	width: 100vw;
-	height: 100vh;
-	padding: 0;
-	display: grid;
-	grid-template-columns: 10fr 70fr;
-	grid-template-areas: "searchForm places"
-						 "searchForm places";
-	justify-content: center;
-	/* align-items: center; */
-	background-color: #3E6680;
-}
-
-.forecast {
+/*.forecast {
 	grid-area: places;	
 	display: grid;
 	grid-template-areas: "clima dias"
 						 "info  history";
 	width: 70vw;
 	height: 70vh;
-	/* background-position: center; */
-	/* background-size: cover; */
-	/* backdrop-filter: blur(10px); */
 	align-self: center;
 	margin-left: 10%;
 	background-color: #00487C;
@@ -32,7 +16,6 @@
 	height: 70vh;
 	background-position: center;
 	background-size: cover;
-	/* backdrop-filter: blur(10px); */
 	position: absolute;
 	z-index: -10;
 	filter: blur(3px);
@@ -205,4 +188,4 @@
 	padding-left: 5%;
 	padding-top: 2%;
 	background-color: #01416e;
-}
+} */
